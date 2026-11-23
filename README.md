@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Universal Animation Engine (UAE)
 
 A standalone, modular JavaScript animation engine designed for beginner-friendly authoring and professional-level control.
@@ -86,3 +87,7 @@ The agent must inspect the actual workspace before creating or changing this str
 
 ## Development status
 See [FEATURE_STATUS.md](FEATURE_STATUS.md), [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md), and [ARCHITECTURE.md](ARCHITECTURE.md).
+=======
+# ar-universal-animation-engine
+Universal Animation Engine — standalone vanilla JS animation engine for DOM, SVG, Canvas, and 3D with timelines, interactions, parallax, particles, and plugin API. Zero core dependencies.
+>>>>>>> 04cb8c8c6a29177ae1a94e6d2d913a80bb1a52c1
