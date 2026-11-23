@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UAE — Demo</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #0f0f0f; color: #e0e0e0; padding: 40px 24px; }
+    h1  { font-size: 2rem; margin-bottom: 8px; color: #fff; }
+    h2  { font-size: 1.1rem; color: #888; margin: 40px 0 16px; text-transform: uppercase; letter-spacing: .08em; }
+    .row { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 16px; }
+    .box { width: 80px; height: 80px; border-radius: 10px; background: #6c63ff; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; cursor: pointer; }
+    .btn { padding: 8px 18px; background: #252525; border: 1px solid #333; color: #e0e0e0; border-radius: 6px; cursor: pointer; font-size: 13px; }
+    .btn:hover { background: #333; }
+    .section { margin-bottom: 60px; }
+    .heading-demo { font-size: 2rem; font-weight: 700; color: #fff; }
+    .svg-demo { width: 200px; height: 100px; }
+    canvas { background: #141414; border-radius: 10px; display: block; }
+    .parallax-scene { position: relative; width: 300px; height: 180px; background: #1a1a1a; border-radius: 12px; overflow: hidden; }
+    .p-layer { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 2rem; }
+  </style>
+</head>
+<body>
+  <h1>UAE — Universal Animation Engine</h1>
+
+  <!-- Presets -->
+  <div class="section">
+    <h2>Presets</h2>
+    <div class="row" id="presets-row"></div>
+    <button class="btn" id="replay-presets">Replay all</button>
+  </div>
+
+  <!-- Timeline -->
+  <div class="section">
+    <h2>Timeline + Stagger</h2>
+    <div class="row" id="timeline-row">
+      <div class="box tl-box">1</div>
+      <div class="box tl-box">2</div>
+      <div class="box tl-box">3</div>
+      <div class="box tl-box">4</div>
+    </div>
+    <button class="btn" id="replay-timeline">Replay</button>
+  </div>
+
+  <!-- Text effect -->
+  <div class="section">
+    <h2>Text Effect</h2>
+    <div class="heading-demo" id="text-demo">Hello UAE</div>
+    <br>
+    <button class="btn" id="replay-text">Replay</button>
+  </div>
+
+  <!-- Mask reveal -->
+  <div class="section">
+    <h2>Mask Reveal</h2>
+    <div class="row">
+      <div class="box" id="mask-box" style="width:160px;height:80px;border-radius:8px;background:#ff6b6b;"></div>
+    </div>
+    <button class="btn" id="replay-mask">Replay</button>
+  </div>
+
+  <!-- SVG stroke draw -->
+  <div class="section">
+    <h2>SVG Stroke Draw</h2>
+    <svg class="svg-demo" viewBox="0 0 200 100">
+      <path id="svg-path" d="M10,50 C50,10 150,90 190,50" fill="none" stroke="#6c63ff" stroke-width="3"/>
+    </svg>
+    <br>
+    <button class="btn" id="replay-svg">Replay</button>
+  </div>
+
+  <!-- 3D flip -->
+  <div class="section">
+    <h2>3D Flip</h2>
+    <div id="scene-3d" style="width:120px;height:120px;">
+      <div class="box" id="flip-card" style="width:120px;height:120px;"></div>
+    </div>
+    <br>
+    <button class="btn" id="replay-3d">Flip</button>
+  </div>
+
+  <!-- Canvas particles -->
+  <div class="section">
+    <h2>Canvas Particles</h2>
+    <canvas id="particle-canvas" width="400" height="200" style="width:400px;height:200px;"></canvas>
+    <br><br>
+    <button class="btn" id="burst-particles">Burst</button>
+  </div>
+
+  <!-- Parallax -->
+  <div class="section">
+    <h2>Pointer Parallax</h2>
+    <div class="parallax-scene" id="parallax-scene">
+      <div class="p-layer" id="p-bg"  style="font-size:3rem;opacity:.2;">🌌</div>
+      <div class="p-layer" id="p-mid" style="font-size:2rem;opacity:.6;">⭐</div>
+      <div class="p-layer" id="p-fg"  style="font-size:1.4rem;">🚀</div>
+    </div>
+  </div>
+
+  <script type="module">
+    import UAE from '../src/index.js';
+
+    // ── Presets ──────────────────────────────────────────────────────────────
+    const presetNames = ['fadeIn','slideUp','slideLeft','zoomIn'];
+    const presetsRow  = document.getElementById('presets-row');
+
+    presetNames.forEach(name => {
+      const box = document.createElement('div');
+      box.className = 'box'; box.textContent = name; box.style.fontSize = '10px';
+      box.dataset.preset = name;
+      presetsRow.appendChild(box);
+    });
+
+    function runPresets() {
+      presetsRow.querySelectorAll('.box').forEach((box, i) => {
+        UAE.animate(box, box.dataset.preset, { duration: 600, delay: i * 100 });
+      });
+    }
+    runPresets();
+    document.getElementById('replay-presets').onclick = runPresets;
+
+    // ── Timeline ─────────────────────────────────────────────────────────────
+    function runTimeline() {
+      const tl = UAE.timeline();
+      tl.stagger('.tl-box', { opacity: 0, y: 30 }, { opacity: 1, y: 0 }, { duration: 400 }, 80);
+      tl.play();
+    }
+    runTimeline();
+    document.getElementById('replay-timeline').onclick = runTimeline;
+
+    // ── Text effect ───────────────────────────────────────────────────────────
+    function runText() {
+      UAE.textEffect('#text-demo', 'chars',
+        { opacity: 0, y: 20 }, { opacity: 1, y: 0 },
+        { duration: 350, stagger: 40, easing: 'easeOutCubic' }
+      );
+    }
+    runText();
+    document.getElementById('replay-text').onclick = runText;
+
+    // ── Mask reveal ───────────────────────────────────────────────────────────
+    function runMask() {
+      UAE.maskReveal('#mask-box', { direction: 'left', duration: 700, easing: 'easeInOutCubic' });
+    }
+    runMask();
+    document.getElementById('replay-mask').onclick = runMask;
+
+    // ── SVG stroke draw ───────────────────────────────────────────────────────
+    function runSVG() {
+      UAE.strokeDraw('#svg-path', { duration: 1200, easing: 'easeInOutCubic' });
+    }
+    runSVG();
+    document.getElementById('replay-svg').onclick = runSVG;
+
+    // ── 3D flip ───────────────────────────────────────────────────────────────
+    const stage = UAE.scene3d('#scene-3d', { perspective: 600 });
+    let flipped = false;
+    document.getElementById('replay-3d').onclick = () => {
+      flipped = !flipped;
+      stage.animate3d('#flip-card', {}, { rotateY: flipped ? 180 : 0 }, { duration: 600, easing: 'easeInOutCubic' });
+    };
+
+    // ── Canvas particles ──────────────────────────────────────────────────────
+    const renderer = UAE.canvasRenderer('#particle-canvas', { background: '#141414' });
+    document.getElementById('burst-particles').onclick = () => {
+      UAE.particles(renderer, {
+        count: 60, color: '#6c63ff', gravity: 0.04,
+        origin: { x: 200, y: 100 }, spawnRate: 60,
+        minLife: 40, maxLife: 100,
+      });
+    };
+
+    // ── Pointer parallax ──────────────────────────────────────────────────────
+    UAE.pointerParallax('#parallax-scene', [
+      { target: '#p-bg',  depth: 0.2 },
+      { target: '#p-mid', depth: 0.5 },
+      { target: '#p-fg',  depth: 1.0 },
+    ], { strength: 25 });
+  </script>
+</body>
+</html>

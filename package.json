@@ -1,0 +1,50 @@
+{
+  "name": "ar-universal-animation-engine",
+  "version": "0.1.0",
+  "description": "A standalone, modular JavaScript animation engine for DOM, SVG, Canvas, and 3D.",
+  "type": "module",
+  "main": "./src/index.js",
+  "module": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./core": "./src/core/Animation.js",
+    "./timeline": "./src/core/Timeline.js",
+    "./easing": "./src/easing/easing.js",
+    "./interpolation": "./src/interpolation/interpolate.js",
+    "./presets": "./src/presets/presets.js",
+    "./interactions": "./src/interactions/index.js",
+    "./parallax": "./src/parallax/index.js",
+    "./canvas": "./src/renderers/canvas/CanvasRenderer.js",
+    "./particles": "./src/effects/particles/ParticleSystem.js",
+    "./plugins": "./src/plugins/pluginRegistry.js"
+  },
+  "sideEffects": false,
+  "files": [
+    "src",
+    "dist"
+  ],
+  "scripts": {
+    "build": "rollup -c rollup.config.js",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest",
+    "test:watch": "node --experimental-vm-modules node_modules/.bin/jest --watch",
+    "lint": "eslint src/**/*.js"
+  },
+  "keywords": [
+    "animation",
+    "css",
+    "svg",
+    "canvas",
+    "timeline",
+    "parallax",
+    "easing"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^8.0.0",
+    "jest": "^29.0.0",
+    "jest-environment-jsdom": "^30.5.2",
+    "jsdom": "^31.0.1",
+    "rollup": "^4.0.0"
+  }
+}

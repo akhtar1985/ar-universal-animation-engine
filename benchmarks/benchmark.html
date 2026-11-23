@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>UAE Benchmarks</title>
+  <style>
+    body { font-family: monospace; background: #0f0f0f; color: #e0e0e0; padding: 24px; }
+    h1 { margin-bottom: 16px; }
+    .result { margin: 8px 0; padding: 8px 12px; background: #1a1a1a; border-radius: 6px; }
+    .pass { color: #a8ff78; }
+    .warn { color: #ffd700; }
+    button { padding: 8px 18px; background: #6c63ff; color: #fff; border: none; border-radius: 6px; cursor: pointer; margin-right: 8px; margin-bottom: 16px; }
+  </style>
+</head>
+<body>
+  <h1>UAE Benchmarks</h1>
+  <button id="run-scheduler">Scheduler throughput</button>
+  <button id="run-interp">Interpolation speed</button>
+  <button id="run-concurrent">Concurrent animations</button>
+  <div id="results"></div>
+
+  <script type="module">
+    import UAE from '../src/index.js';
+    import { interpolate } from '../src/interpolation/interpolate.js';
+    import { add, remove } from '../src/scheduler/scheduler.js';
+
+    const out = document.getElementById('results');
+
+    function log(label, value, unit = '', threshold = null) {
+      const pass = threshold == null || value >= threshold;
+      out.innerHTML += `<div class="result ${pass ? 'pass' : 'warn'}">
+        ${label}: <strong>${value.toFixed(2)} ${unit}</strong>
+        ${threshold != null ? `(target ≥ ${threshold})` : ''}
+      </div>`;
+    }
+
+    // ── Interpolation speed ───────────────────────────────────────────────────
+    document.getElementById('run-interp').onclick = () => {
+      const N = 1_000_000;
+      const t0 = performance.now();
+      for (let i = 0; i < N; i++) interpolate(0, 100, i / N);
+      const ms = performance.now() - t0;
+      log('Numeric interpolations / ms', N / ms, 'ops/ms', 50_000);
+
+      const t1 = performance.now();
+      for (let i = 0; i < N; i++) interpolate('#000000', '#ffffff', i / N);
+      const ms2 = performance.now() - t1;
+      log('Color interpolations / ms', N / ms2, 'ops/ms', 10_000);
+    };
+
+    // ── Scheduler throughput ──────────────────────────────────────────────────
+    document.getElementById('run-scheduler').onclick = () => {
+      const COUNT = 500;
+      let ticks = 0;
+      const objs = Array.from({ length: COUNT }, () => ({ _tick() { ticks++; } }));
+      objs.forEach(add);
+
+      const t0 = performance.now();
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          const ms = performance.now() - t0;
+          objs.forEach(remove);
+          log(`${COUNT} objects ticked in`, ms, 'ms for 2 frames', null);
+          log('Ticks fired', ticks, '', COUNT * 2);
+        });
+      });
+    };
+
+    // ── Concurrent animations ─────────────────────────────────────────────────
+    document.getElementById('run-concurrent').onclick = () => {
+      // Create N real elements off-screen and animate them
+      const N = 200;
+      const container = document.createElement('div');
+      container.style.cssText = 'position:fixed;left:-9999px;top:0;';
+      document.body.appendChild(container);
+
+      const els = Array.from({ length: N }, () => {
+        const el = document.createElement('div');
+        container.appendChild(el);
+        return el;
+      });
+
+      const t0 = performance.now();
+      let done = 0;
+
+      els.forEach((el, i) => {
+        UAE.fromTo(el,
+          { opacity: 0, x: 0 },
+          { opacity: 1, x: 100 },
+          {
+            duration: 300,
+            delay: 0,
+            onComplete() {
+              done++;
+              if (done === N) {
+                const ms = performance.now() - t0;
+                log(`${N} concurrent animations completed in`, ms, 'ms', null);
+                document.body.removeChild(container);
+              }
+            }
+          }
+        );
+      });
+    };
+  </script>
+</body>
+</html>
